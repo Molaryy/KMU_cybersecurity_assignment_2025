@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    container_name: lab-server
+    hostname: lab-server
+    # Privileged mode is required for iptables to work
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    networks:
+      lab-network:
+        ipv4_address: 172.20.0.10
+    stdin_open: true
+    tty: true
+
+  scanner:
+    image: instrumentisto/nmap:latest
+    container_name: lab-scanner
+    hostname: lab-scanner
+    networks:
+      lab-network:
+        ipv4_address: 172.20.0.20
+    depends_on:
+      - server
+    command: tail -f /dev/null
+    stdin_open: true
+    tty: true
+
+networks:
+  lab-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16

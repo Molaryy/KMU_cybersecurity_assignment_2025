@@ -1,0 +1,33 @@
+FROM ubuntu:22.04
+
+# Install necessary packages
+RUN apt-get update && apt-get install -y \
+    iptables \
+    iptables-persistent \
+    openssh-server \
+    nginx \
+    netcat-openbsd \
+    net-tools \
+    iproute2 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Configure SSH
+RUN mkdir /var/run/sshd
+RUN echo 'root:password' | chpasswd
+RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+
+# Configure nginx for HTTPS (we'll use HTTP on 443 for simplicity in the lab)
+RUN echo "server { listen 443; location / { return 200 'HTTPS Service Active\\n'; add_header Content-Type text/plain; } }" > /etc/nginx/sites-available/default
+
+# Copy iptables setup script
+COPY setup-iptables.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/setup-iptables.sh
+
+# Copy startup script
+COPY start-services.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/start-services.sh
+
+# Expose ports
+EXPOSE 22 443 80 8080
+
+CMD ["/usr/local/bin/start-services.sh"]
