@@ -5,8 +5,8 @@ services:
     build: .
     container_name: lab-b-nginx-https
     ports:
-      - "80:80"    # HTTP port (will redirect to HTTPS)
-      - "443:443"  # HTTPS port
+      - "80:80"
+      - "443:443"
     restart: unless-stopped
     networks:
       - lab-network
