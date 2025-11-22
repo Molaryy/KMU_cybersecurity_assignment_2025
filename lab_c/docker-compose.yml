@@ -1,13 +1,10 @@
-version: '3.8'
-
 services:
   server:
     build:
       context: .
-      dockerfile: Dockerfile.server
+      dockerfile: Dockerfile
     container_name: lab-server
     hostname: lab-server
-    # Privileged mode is required for iptables to work
     privileged: true
     cap_add:
       - NET_ADMIN
@@ -27,7 +24,8 @@ services:
         ipv4_address: 172.20.0.20
     depends_on:
       - server
-    command: tail -f /dev/null
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["tail -f /dev/null"]
     stdin_open: true
     tty: true
 
